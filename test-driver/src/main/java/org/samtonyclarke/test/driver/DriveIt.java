@@ -2,6 +2,7 @@ package org.samtonyclarke.test.driver;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -13,11 +14,17 @@ import reactor.core.publisher.Mono;
 @SpringBootApplication
 public class DriveIt
 {
-    private static AtomicInteger failed = new AtomicInteger();
+    private AtomicInteger failed = new AtomicInteger();
 
-    private static AtomicInteger passed = new AtomicInteger();
+    private AtomicInteger passed = new AtomicInteger();
 
     public static void main(String args[]) throws InterruptedException
+    {
+        SpringApplication.run(DriveIt.class, args);
+    }
+
+    
+    public DriveIt()
     {
         Flux<Integer> intFlux = Flux.range(1, 20000000);
         intFlux.parallel().subscribe(i -> {
@@ -33,10 +40,9 @@ public class DriveIt
                 System.exit(-1);
             }
         });
-
     }
-
-    private static void callOnce()
+    
+    private void callOnce()
     {
         Mono<ClientResponse> exchange = WebClient.create("http://localhost:8060").get().uri("integrationTest/1.0/app-name")
                 .exchange().doOnSuccess(f -> passed.incrementAndGet());
